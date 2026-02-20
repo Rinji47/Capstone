@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - BlogHub{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome to BlogHub</h1>
+            <p>Discover amazing stories, ideas, and perspectives from writers around the world.</p>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="hero-button">Get Started</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Filters and Search -->
+    <section class="filters-section">
+        <form method="get" class="filters-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search posts..."
+                    class="search-input">
+            </div>
+
+            <select name="category" class="category-filter">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                <option value="{{ category.name }}" {% if selected_category == category.name %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="filter-button">Filter</button>
+        </form>
+    </section>
+
+    <!-- Posts Grid -->
+    <section class="posts-section">
+        <div class="posts-grid">
+            {% for post in posts %}
+            <article class="post-card">
+                <div class="post-image">
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+                    {% else %}
+                    <div class="placeholder-image">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="post-card-content">
+                    <div class="post-meta">
+                        <span class="category-badge">
+                            {% if post.category %}{{ post.category.name }}{% else %}Uncategorized{% endif %}
+                        </span>
+                        <span class="post-date">
+                            <i class="far fa-calendar"></i> {{ post.created_at|date:"M d, Y" }}
+                        </span>
+                    </div>
+
+                    <h2 class="post-title">{{ post.title }}</h2>
+                    <p class="post-excerpt">{{ post.content|striptags|truncatewords:30 }}</p>
+
+                    <div class="post-author">
+                        {% if post.author.profile and post.author.profile.avatar %}
+                        <img src="{{ post.author.profile.avatar.url }}" alt="{{ post.author.username }}"
+                            class="author-avatar">
+                        {% else %}
+                        <div class="author-avatar">{{ post.author.username|first|upper }}</div>
+                        {% endif %}
+                        <span class="author-name">{{ post.author.get_full_name|default:post.author.username }}</span>
+                    </div>
+
+                    <div class="post-footer">
+                        <div class="post-stats">
+                            <!-- Like button links to backend toggle_like view -->
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'toggle_like' post.id %}"
+                                class="stat like-button {% if post.liked_by_user %}liked{% endif %}">
+                                <i class="fas fa-heart"></i> <span class="like-count">{{ post.likes.count }}</span>
+                            </a>
+                            {% else %}
+                            <span class="stat">
+                                <i class="fas fa-heart"></i> {{ post.likes.count }}
+                            </span>
+                            {% endif %}
+                            <span class="stat">
+                                <i class="fas fa-comment"></i> {{ post.comments.count }}
+                            </span>
+                        </div>
+                        <a href="{% url 'post_detail' post.id %}" class="read-more">Read More →</a>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <div class="no-posts">
+                <i class="fas fa-inbox"></i>
+                <p>No posts found. Check back later!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Pagination -->
+    {% if posts.has_other_pages %}
+    <div class="pagination">
+        {% if posts.has_previous %}
+        <a href="?page=1{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}"
+            class="pagination-button">First</a>
+        <a href="?page={{ posts.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}"
+            class="pagination-button">Previous</a>
+        {% endif %}
+
+        <span class="pagination-info">
+            Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+        </span>
+
+        {% if posts.has_next %}
+        <a href="?page={{ posts.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}"
+            class="pagination-button">Next</a>
+        <a href="?page={{ posts.paginator.num_pages }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}"
+            class="pagination-button">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

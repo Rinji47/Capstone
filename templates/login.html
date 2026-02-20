@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - BlogHub{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-sign-in-alt"></i>
+            <h1>Welcome Back</h1>
+            <p>Sign in to your BlogHub account</p>
+        </div>
+
+        <!-- Display Django messages -->
+        {% if messages %}
+            <div class="form-errors">
+                {% for message in messages %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_username" class="form-label">Username</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input 
+                        type="text" 
+                        name="username" 
+                        id="id_username"
+                        class="form-input"
+                        placeholder="Enter your username"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password" class="form-label">Password</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="id_password"
+                        class="form-input"
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="form-remember">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="remember_me">
+                    <span>Remember me</span>
+                </label>
+                <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="auth-button">Sign In</button>
+        </form>
+
+        <div class="auth-divider">
+            <span>Don't have an account?</span>
+        </div>
+
+        <a href="{% url 'register' %}" class="auth-link-button">Create a new account</a>
+    </div>
+
+    <div class="auth-illustration">
+        <div class="illustration-icon">
+            <i class="fas fa-pen-fancy"></i>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-remember {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+
+    .forgot-password {
+        color: #6366f1;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+    .form-errors {
+        margin-bottom: 1rem;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        color: #b91c1c;
+        padding: 0.5rem;
+        border-radius: 5px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}

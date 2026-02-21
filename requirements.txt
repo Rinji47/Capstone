@@ -1,5 +1,7 @@
-django>=5.2.11
+django==5.1.3
 python-dotenv
 gunicorn
 Pillow
 whitenoise
+cloudinary
+django-cloudinary-storage

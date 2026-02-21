@@ -45,8 +45,11 @@ class Post(models.Model):
                 img.thumbnail((800, 800), Image.Resampling.LANCZOS)
             buffer = BytesIO()
             img.save(buffer, format='JPEG', quality=85)
+            buffer.seek(0)
+            import os
+            filename = os.path.splitext(self.featured_image.name)[0] + '.jpg'
             self.featured_image = InMemoryUploadedFile(
-                buffer, 'ImageField', self.featured_image.name, 'image/jpeg', buffer.tell(), None
+                buffer, 'ImageField', filename, 'image/jpeg', buffer.getbuffer().nbytes, None
             )
         super().save(*args, **kwargs)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -100,6 +103,7 @@ class UserProfile(models.Model):
     banner = models.ImageField(upload_to='banners/', blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        import os
         if self.avatar:
             img = Image.open(self.avatar)
             if img.mode in ("RGBA", "P"):
@@ -108,8 +112,10 @@ class UserProfile(models.Model):
                 img.thumbnail((800, 800), Image.Resampling.LANCZOS)
             buffer = BytesIO()
             img.save(buffer, format='JPEG', quality=85)
+            buffer.seek(0)
+            filename = os.path.splitext(self.avatar.name)[0] + '.jpg'
             self.avatar = InMemoryUploadedFile(
-                buffer, 'ImageField', self.avatar.name, 'image/jpeg', buffer.tell(), None
+                buffer, 'ImageField', filename, 'image/jpeg', buffer.getbuffer().nbytes, None
             )
         if self.banner:
             img = Image.open(self.banner)
@@ -119,8 +125,10 @@ class UserProfile(models.Model):
                 img.thumbnail((1200, 400), Image.Resampling.LANCZOS)
             buffer = BytesIO()
             img.save(buffer, format='JPEG', quality=85)
+            buffer.seek(0)
+            filename = os.path.splitext(self.banner.name)[0] + '.jpg'
             self.banner = InMemoryUploadedFile(
-                buffer, 'ImageField', self.banner.name, 'image/jpeg', buffer.tell(), None
+                buffer, 'ImageField', filename, 'image/jpeg', buffer.getbuffer().nbytes, None
             )
         super().save(*args, **kwargs)
 

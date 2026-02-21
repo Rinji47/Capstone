@@ -64,7 +64,10 @@
                     </div>
 
                     <h2 class="post-title">{{ post.title }}</h2>
-                    <p class="post-excerpt">{{ post.content|striptags|truncatewords:30 }}</p>
+                    <p class="post-excerpt">
+                        {{ post.content|striptags|truncatechars:120 }}
+                        {% if post.content|striptags|length > 120 %}...{% endif %}
+                    </p>
 
                     <div class="post-author">
                         {% if post.author.profile and post.author.profile.avatar %}

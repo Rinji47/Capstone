@@ -143,6 +143,13 @@
                 {% endif %}
             </div>
             {% endfor %}
+            {% if request.user == profile_user and published_posts %}
+                {% if request.user == profile_user %}
+                <div style="text-align:center; margin-top: 2em;">
+                    <a href="{% url 'create_post' %}" class="create-post-button"><i class="fas fa-plus"></i> Create New Post</a>
+                </div>
+                {% endif %}
+            {% endif %}
         </div>
     </div>
 

@@ -39,13 +39,15 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
         if self.featured_image:
             img = Image.open(self.featured_image)
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
             if img.width > 800 or img.height > 800:
-                img.thumbnail((800, 800), Image.ANTIALIAS)
-                buffer = BytesIO()
-                img.save(buffer, format='JPEG', quality=85)
-                self.featured_image = InMemoryUploadedFile(
-                    buffer, 'ImageField', self.featured_image.name, 'image/jpeg', buffer.tell(), None
-                )
+                img.thumbnail((800, 800), Image.Resampling.LANCZOS)
+            buffer = BytesIO()
+            img.save(buffer, format='JPEG', quality=85)
+            self.featured_image = InMemoryUploadedFile(
+                buffer, 'ImageField', self.featured_image.name, 'image/jpeg', buffer.tell(), None
+            )
         super().save(*args, **kwargs)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -100,22 +102,26 @@ class UserProfile(models.Model):
     def save(self, *args, **kwargs):
         if self.avatar:
             img = Image.open(self.avatar)
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
             if img.width > 800 or img.height > 800:
-                img.thumbnail((800, 800), Image.ANTIALIAS)
-                buffer = BytesIO()
-                img.save(buffer, format='JPEG', quality=85)
-                self.avatar = InMemoryUploadedFile(
-                    buffer, 'ImageField', self.avatar.name, 'image/jpeg', buffer.tell(), None
-                )
+                img.thumbnail((800, 800), Image.Resampling.LANCZOS)
+            buffer = BytesIO()
+            img.save(buffer, format='JPEG', quality=85)
+            self.avatar = InMemoryUploadedFile(
+                buffer, 'ImageField', self.avatar.name, 'image/jpeg', buffer.tell(), None
+            )
         if self.banner:
             img = Image.open(self.banner)
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
             if img.width > 1200 or img.height > 400:
-                img.thumbnail((1200, 400), Image.ANTIALIAS)
-                buffer = BytesIO()
-                img.save(buffer, format='JPEG', quality=85)
-                self.banner = InMemoryUploadedFile(
-                    buffer, 'ImageField', self.banner.name, 'image/jpeg', buffer.tell(), None
-                )
+                img.thumbnail((1200, 400), Image.Resampling.LANCZOS)
+            buffer = BytesIO()
+            img.save(buffer, format='JPEG', quality=85)
+            self.banner = InMemoryUploadedFile(
+                buffer, 'ImageField', self.banner.name, 'image/jpeg', buffer.tell(), None
+            )
         super().save(*args, **kwargs)
 
     def __str__(self):

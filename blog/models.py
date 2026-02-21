@@ -1,3 +1,6 @@
+from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
@@ -33,6 +36,17 @@ class Post(models.Model):
     content = models.TextField(help_text="Rich text content for the blog")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PUBLISHED)
     featured_image = models.ImageField(upload_to='posts/', blank=True, null=True)
+    def save(self, *args, **kwargs):
+        if self.featured_image:
+            img = Image.open(self.featured_image)
+            if img.width > 800 or img.height > 800:
+                img.thumbnail((800, 800), Image.ANTIALIAS)
+                buffer = BytesIO()
+                img.save(buffer, format='JPEG', quality=85)
+                self.featured_image = InMemoryUploadedFile(
+                    buffer, 'ImageField', self.featured_image.name, 'image/jpeg', buffer.tell(), None
+                )
+        super().save(*args, **kwargs)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -82,6 +96,27 @@ class UserProfile(models.Model):
     bio = models.TextField(max_length=500, blank=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     banner = models.ImageField(upload_to='banners/', blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.avatar:
+            img = Image.open(self.avatar)
+            if img.width > 800 or img.height > 800:
+                img.thumbnail((800, 800), Image.ANTIALIAS)
+                buffer = BytesIO()
+                img.save(buffer, format='JPEG', quality=85)
+                self.avatar = InMemoryUploadedFile(
+                    buffer, 'ImageField', self.avatar.name, 'image/jpeg', buffer.tell(), None
+                )
+        if self.banner:
+            img = Image.open(self.banner)
+            if img.width > 1200 or img.height > 400:
+                img.thumbnail((1200, 400), Image.ANTIALIAS)
+                buffer = BytesIO()
+                img.save(buffer, format='JPEG', quality=85)
+                self.banner = InMemoryUploadedFile(
+                    buffer, 'ImageField', self.banner.name, 'image/jpeg', buffer.tell(), None
+                )
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
